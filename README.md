@@ -2,7 +2,6 @@
 
 Projeto Django com Django Oscar para gerenciamento de loja virtual.
 
----
 
 ## 📦 Pré-requisitos
 
@@ -12,7 +11,6 @@ Antes de começar, você precisa ter instalado:
 - [Git](https://git-scm.com/)
 - (Opcional) Um editor como [VS Code](https://code.visualstudio.com/)
 
----
 
 ## 🚀 Como rodar o projeto localmente
 
@@ -64,7 +62,6 @@ pip freeze > requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
----
 
 ## 👩‍💻 Autora
 Gabriella Rezende • gabriella.rzende@...
