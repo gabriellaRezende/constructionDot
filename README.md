@@ -63,6 +63,21 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### ✅ Verificação Pós-Instalação
+
+Após `python manage.py runserver`, abra no navegador:
+
+- http://127.0.0.1:8000/  
+  Deve exibir a página inicial padrão do Django Oscar.
+
+- http://127.0.0.1:8000/dashboard/  
+  Deve carregar o dashboard (login pode ser necessário).
+
+- http://127.0.0.1:8000/api/  
+  Deve apresentar a interface “Browsable API” do Django REST Framework, sem erro 500.
+
+Se qualquer uma dessas URLs retornar erro, revise as configurações de `INSTALLED_APPS` e migrações.
+
 ## 👩‍💻 Autora
 Gabriella Rezende • gabriella.rzende@...
 Thales Pires •  
