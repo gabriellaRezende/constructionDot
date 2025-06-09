@@ -1,0 +1,36 @@
+# Virtual environment
+venv/
+
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+
+# SQLite database
+db.sqlite3
+
+# Django migrations
+*/migrations/*.py
+*/migrations/*.pyc
+
+# Media and static files
+staticfiles/
+media/
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Coverage
+htmlcov/
+.coverage
+
+# Distribution / packaging
+*.egg-info/
+build/
+dist/
