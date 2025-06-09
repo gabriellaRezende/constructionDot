@@ -65,3 +65,4 @@ python manage.py runserver
 
 ## 👩‍💻 Autora
 Gabriella Rezende • gabriella.rzende@...
+Thales Pires •  
