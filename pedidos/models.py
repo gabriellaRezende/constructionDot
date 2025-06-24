@@ -1,49 +1,34 @@
 from django.db import models
+from profiles.models import ClientProfile, SuplierProfile
+from catalogo.models import Produto  # ou Product, depende do nome do modelo
 
-# Create your models here.
-
-class Order(models.Model):
+class Encomenda(models.Model):
     STATUS_CHOICES = [
-        ('PENDING', 'Pendente'),
-        ('PAID', 'Pago'),
-        ('SHIPPED', 'Enviado'),
-        ('DELIVERED', 'Entregue'),
-        ('CANCELED', 'Cancelado'),
+        ('pendente', 'Pendente'),
+        ('pago', 'Pago'),
+        ('enviado', 'Enviado'),
+        ('entregue', 'Entregue'),
+        ('cancelado', 'Cancelado'),
     ]
 
-    client = models.ForeignKey(
-        'profiles.ClientProfile',
-        on_delete=models.CASCADE,
-        related_name='orders'
-    )
-    create_at = models.DateTimeField("Data do Pedido", auto_now_add=True)
-    status = models.CharField(
-        "Status",
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='PENDING'
-    )
-    total = models.DecimalField("Total", max_digits=10, decimal_places=2, default=0.00)
+    cliente = models.ForeignKey(ClientProfile, on_delete=models.CASCADE, related_name='encomendas')
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente')
+    valor_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return f"Order {self.id} - {self.client.user.username}"
-    
-class OrderItem(models.Model):
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name='items'
-    )
-    product = models.ForeignKey(
-        'catalogo.Product',
-        on_delete=models.CASCADE,
-    )
-    quantity = models.PositiveIntegerField("Quantidade")
-    unity_price = models.DecimalField("Preço Unitário", max_digits=10, decimal_places=2)
-    supplier = models.ForeignKey(
-        'profiles.SuplierProfile',
-        on_delete=models.CASCADE,
-    )
+        return f"Encomenda #{self.id} - {self.cliente.user.username}"
+
+
+class EncomendaItem(models.Model):
+    encomenda = models.ForeignKey(Encomenda, on_delete=models.CASCADE, related_name='itens')
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    quantidade = models.PositiveIntegerField()
+    preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    fornecedor = models.ForeignKey(SuplierProfile, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.name} (Order #{self.order.id})"
+        return f"{self.quantidade} x {self.produto.name} (Encomenda #{self.encomenda.id})"
+
+    def subtotal(self):
+        return self.quantidade * self.preco_unitario

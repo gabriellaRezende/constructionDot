@@ -33,9 +33,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'profiles', 
-    'catalogo',
     'pedidos',
-
+    'catalogo',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -118,7 +117,7 @@ ROOT_URLCONF = 'pbe.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -196,3 +195,6 @@ STATIC_URL = 'static/'
 from oscar.defaults import *
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = '/accounts/login/'  # URL padrão para onde o Django redireciona quando um login é necessário
+LOGIN_REDIRECT_URL = '/'        # URL para onde o Django redireciona após o login bem-sucedido
