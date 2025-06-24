@@ -195,3 +195,6 @@ STATIC_URL = 'static/'
 from oscar.defaults import *
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = '/accounts/login/'  # URL padrão para onde o Django redireciona quando um login é necessário
+LOGIN_REDIRECT_URL = '/'        # URL para onde o Django redireciona após o login bem-sucedido
