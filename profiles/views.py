@@ -9,8 +9,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ClientRegisterForm, SuplierRegisterForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
+from .decorators import supplier_required, client_required
 
 # Registro Cliente API
 class ClientRegisterView(generics.CreateAPIView):
@@ -52,6 +53,10 @@ class SupplierRegisterView(FormView):
             ie=form.cleaned_data['ie']
         )
 
+        # Atribuir ao grupo Fornecedor
+        group = Group.objects.get(name='Fornecedor')
+        user.groups.add(group)
+
         # Autenticar e logar o usuário com backend definido
         user_auth = authenticate(username=username, password=password)
         if user_auth is not None:
@@ -67,7 +72,7 @@ class SupplierRegisterView(FormView):
 class LoginRegisterClientView(FormView):
     template_name = 'registration/login.html'
     form_class = ClientRegisterForm
-    success_url = '/'  # Redirecionar para o dashboard de cliente
+    success_url = '/client/dashboard/'
 
     def get(self, request, *args, **kwargs):
         login_form = AuthenticationForm()
@@ -90,7 +95,7 @@ class LoginRegisterClientView(FormView):
                 if hasattr(user, 'suplier_profile'):
                     return redirect('/supplier/dashboard/')
                 elif hasattr(user, 'client_profile'):
-                    return redirect('/')
+                    return redirect('/client/dashboard/')
                 else:
                     messages.error(request, 'Usuário sem perfil associado.')
                     return redirect('/')
@@ -114,6 +119,10 @@ class LoginRegisterClientView(FormView):
                         nif=register_form.cleaned_data['nif']
                     )
 
+                # Atribuir ao grupo Cliente
+                group = Group.objects.get(name='Cliente')
+                user.groups.add(group)
+
                 auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return redirect(self.success_url)
 
@@ -126,8 +135,20 @@ class LoginRegisterClientView(FormView):
             'login_form': login_form,
             'register_form': register_form
         })
-    
-@login_required
+
+
+# View Sem Permissão
+def sem_permissao(request):
+    return render(request, 'sem_permissao.html')
+
+
+# View Dashboard Fornecedor (protegida)
+@supplier_required
 def supplier_dashboard(request):
-    # Você pode passar dados contextuais se quiser
     return render(request, 'supplier/dashboard.html')
+
+
+# View Dashboard Cliente (protegida)
+@client_required
+def client_dashboard(request):
+    return render(request, 'client/dashboard.html')
