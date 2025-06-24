@@ -1,0 +1,16 @@
+{% extends "oscar/layout.html" %}
+
+{% block title %}Client Registration{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Client Registration</h1>
+    </div>
+    <form method="post" class="form-horizontal" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% include "oscar/partials/form_fields.html" with form=form %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Register</button>
+        </div>
+    </form>
+{% endblock %}
