@@ -11,7 +11,7 @@ from catalogo.models import Produto
 @login_required
 def produto_list(request):
     qs = Produto.objects.filter(fornecedor=request.user.suplier_profile)
-    return render(request, 'supplier/produto_list.html', {'produto': qs})
+    return render(request, 'supplier/produto_list.html', {'products': qs})
 
 @login_required
 def produto_create(request):
