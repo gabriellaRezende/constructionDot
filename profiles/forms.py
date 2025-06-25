@@ -1,48 +1,48 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from .models import SuplierProfile
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import SuplierProfile, ClientProfile
+from django.contrib.auth import get_user_model
 
-class SuplierRegisterForm(UserCreationForm):
-    company_name = forms.CharField(max_length=255)
-    contact_phone = forms.CharField(max_length=20)
+User = get_user_model()
+
+class SupplierRegisterForm(forms.Form):
+    # campos de User
+    username = forms.CharField(max_length=150)
+    email    = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    # campos de perfil
+    company_name    = forms.CharField(max_length=100)
+    contact_phone   = forms.CharField(max_length=20)
     company_address = forms.CharField(max_length=255)
-    cnpj = forms.CharField(max_length=20)
-    ie = forms.CharField(max_length=30, required=False)
+    cnpj            = forms.CharField(max_length=18)
+    ie              = forms.CharField(max_length=30, required=False)
 
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']
+    def clean_cnpj(self):
+        cnpj = self.cleaned_data['cnpj']
+        if SuplierProfile.objects.filter(cnpj=cnpj).exists():
+            raise ValidationError("Este CNPJ já está cadastrado.")
+        return cnpj
 
-    def save(self, commit=True):
-        user = super().save(commit)
+    def save(self):
+        # Cria o User
+        user = User.objects.create_user(
+            username=self.cleaned_data['username'],
+            email=self.cleaned_data['email'],
+            password=self.cleaned_data['password'],
+        )
+
+        from django.contrib.auth.models import Group
+        fornecedor_group, _ = Group.objects.get_or_create(name='Fornecedor')
+        user.groups.add(fornecedor_group)
+
         SuplierProfile.objects.create(
             user=user,
             company_name=self.cleaned_data['company_name'],
             contact_phone=self.cleaned_data['contact_phone'],
             company_address=self.cleaned_data['company_address'],
             cnpj=self.cleaned_data['cnpj'],
-            ie=self.cleaned_data['ie']
-        )
-        return user
-
-class ClientRegisterForm(UserCreationForm):
-    contact_phone = forms.CharField(max_length=20)
-    delivery_address = forms.CharField(max_length=255)
-    city_code = forms.CharField(max_length=10, required=False)
-    nif = forms.CharField(max_length=20)
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']
-
-    def save(self, commit=True):
-        user = super().save(commit)
-        ClientProfile.objects.create(
-            user=user,
-            contact_phone=self.cleaned_data['contact_phone'],
-            delivery_address=self.cleaned_data['delivery_address'],
-            city_code=self.cleaned_data['city_code'],
-            nif=self.cleaned_data['nif']
+            ie=self.cleaned_data.get('ie', '')
         )
         return user
