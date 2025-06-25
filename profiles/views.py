@@ -12,6 +12,12 @@ from .forms import ClientRegisterForm, SuplierRegisterForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from .decorators import supplier_required, client_required
+from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.apps import apps
+from oscar.core.loading import get_model
+from django.views import generic
 
 # Registro Cliente API
 class ClientRegisterView(generics.CreateAPIView):
@@ -154,3 +160,20 @@ def supplier_dashboard(request):
 @client_required
 def client_dashboard(request):
     return render(request, '/')
+
+Order = get_model('order', 'Order')
+
+class OrderProgressView(LoginRequiredMixin, generic.ListView):
+    """
+    Custom order history view with progress bar.
+    """
+    model = Order
+    template_name = "oscar/customer/order/order_progress_list.html"
+    context_object_name = "orders"
+    paginate_by = settings.OSCAR_ORDERS_PER_PAGE
+
+    def get_queryset(self):
+        """
+        Return only orders from the logged-in user.
+        """
+        return self.model._default_manager.filter(user=self.request.user).order_by('-date_placed')

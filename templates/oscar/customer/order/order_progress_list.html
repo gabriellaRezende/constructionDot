@@ -1,0 +1,58 @@
+{% extends "oscar/customer/baseaccountpage.html" %}
+
+{% block title %}Order Progress{% endblock %}
+
+{% block content %}
+<h2>Order Progress</h2>
+
+{% for order in orders %}
+    <div class="order-card">
+        <h4>Order #{{ order.number }}</h4>
+        <p>Date: {{ order.date_placed }}</p>
+
+        <div class="order-status">
+            <div class="step {% if order.status in 'Pending,Processing,Shipped,Delivered' %}active{% endif %}">Pendente</div>
+            <div class="step {% if order.status in 'Processing,Shipped,Delivered' %}active{% endif %}">Pago</div>
+            <div class="step {% if order.status in 'Shipped,Delivered' %}active{% endif %}">Enviado</div>
+            <div class="step {% if order.status == 'Delivered' %}active{% endif %}">Entregue</div>
+        </div>
+    </div>
+    <hr>
+{% empty %}
+    <p>No orders found.</p>
+{% endfor %}
+
+<style>
+.order-card {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.order-status {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+.step {
+    padding: 10px;
+    flex: 1;
+    text-align: center;
+    font-size: 0.9em;
+    background: #eee;
+    color: #aaa;
+    border-right: 1px solid white;
+    border-radius: 5px;
+}
+.step:last-child {
+    border-right: none;
+}
+.step.active {
+    background: #4caf50;
+    color: white;
+    font-weight: bold;
+}
+</style>
+
+{% endblock %}
