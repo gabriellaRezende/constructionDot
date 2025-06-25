@@ -19,7 +19,7 @@ def produto_create(request):
         form = ProdutoForm(request.POST, request.FILES)
         if form.is_valid():
             produto = form.save(commit=False)
-            produto.suplier = request.user.suplier_profile
+            produto.fornecedor = request.user.suplier_profile
             produto.save()
             return redirect('produto_list')
     else:
