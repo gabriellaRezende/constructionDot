@@ -1,0 +1,9 @@
+{% extends "oscar/layout.html" %}
+{% block content %}
+<h1>Confirma exclusão</h1>
+<p>Tem certeza que deseja excluir "{{ object.name }}"?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit" class="btn btn-danger">Sim, excluir</button>
+  <a href="{% url 'produto_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

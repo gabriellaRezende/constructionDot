@@ -1,0 +1,10 @@
+{% extends "oscar/layout.html" %}
+{% block content %}
+<h1>{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Produto</h1>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a href="{% url 'produto_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
