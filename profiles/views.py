@@ -54,8 +54,9 @@ class SupplierRegisterView(FormView):
         )
 
         # Atribuir ao grupo Fornecedor
-        group = Group.objects.get(name='Fornecedor')
+        group, created = Group.objects.get_or_create(name='Fornecedor')
         user.groups.add(group)
+
 
         # Autenticar e logar o usuário com backend definido
         user_auth = authenticate(username=username, password=password)
@@ -72,7 +73,7 @@ class SupplierRegisterView(FormView):
 class LoginRegisterClientView(FormView):
     template_name = 'registration/login.html'
     form_class = ClientRegisterForm
-    success_url = '/client/dashboard/'
+    success_url = '/'
 
     def get(self, request, *args, **kwargs):
         login_form = AuthenticationForm()
@@ -95,7 +96,7 @@ class LoginRegisterClientView(FormView):
                 if hasattr(user, 'suplier_profile'):
                     return redirect('/supplier/dashboard/')
                 elif hasattr(user, 'client_profile'):
-                    return redirect('/client/dashboard/')
+                    return redirect('/')
                 else:
                     messages.error(request, 'Usuário sem perfil associado.')
                     return redirect('/')
@@ -120,8 +121,9 @@ class LoginRegisterClientView(FormView):
                     )
 
                 # Atribuir ao grupo Cliente
-                group = Group.objects.get(name='Cliente')
+                group, created = Group.objects.get_or_create(name='Cliente')
                 user.groups.add(group)
+
 
                 auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return redirect(self.success_url)
@@ -151,4 +153,4 @@ def supplier_dashboard(request):
 # View Dashboard Cliente (protegida)
 @client_required
 def client_dashboard(request):
-    return render(request, 'client/dashboard.html')
+    return render(request, '/')
