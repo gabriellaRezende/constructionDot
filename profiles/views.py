@@ -9,9 +9,18 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ClientRegisterForm, SuplierRegisterForm
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.decorators import login_required
 from .decorators import supplier_required, client_required
+from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.apps import apps
+from oscar.core.loading import get_model
+from django.views import generic
+from django.contrib.contenttypes.models import ContentType
+
+Partner = get_model('partner', 'Partner')
 
 # Registro Cliente API
 class ClientRegisterView(generics.CreateAPIView):
@@ -22,7 +31,7 @@ class ClientRegisterView(generics.CreateAPIView):
 class SupplierRegisterView(FormView):
     template_name = 'registration/register_supplier.html'
     form_class = SuplierRegisterForm
-    success_url = '/supplier/dashboard/'
+    success_url = '/dashboard/'
 
     def form_valid(self, form):
         username = form.cleaned_data['username']
@@ -53,12 +62,20 @@ class SupplierRegisterView(FormView):
             ie=form.cleaned_data['ie']
         )
 
+        # Criar Partner no Oscar
+        partner = Partner.objects.create(name=form.cleaned_data['company_name'])
+        partner.users.add(user)
+
+        # Adicionar permissão partner.dashboard_access
+        content_type = ContentType.objects.get(app_label='partner', model='partner')
+        permission = Permission.objects.get(content_type=content_type, codename='dashboard_access')
+        user.user_permissions.add(permission)
+
         # Atribuir ao grupo Fornecedor
         group, created = Group.objects.get_or_create(name='Fornecedor')
         user.groups.add(group)
 
-
-        # Autenticar e logar o usuário com backend definido
+        # Autenticar e logar o usuário
         user_auth = authenticate(username=username, password=password)
         if user_auth is not None:
             auth_login(self.request, user_auth, backend='django.contrib.auth.backends.ModelBackend')
@@ -67,7 +84,6 @@ class SupplierRegisterView(FormView):
             return self.form_invalid(form)
 
         return super().form_valid(form)
-
 
 # Página combinada de Login + Registo Cliente
 class LoginRegisterClientView(FormView):
@@ -92,9 +108,9 @@ class LoginRegisterClientView(FormView):
                 user = login_form.get_user()
                 auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-                # Verificar tipo de usuário
+                # Redirecionamento baseado no tipo de usuário
                 if hasattr(user, 'suplier_profile'):
-                    return redirect('/supplier/dashboard/')
+                    return redirect('/dashboard/')
                 elif hasattr(user, 'client_profile'):
                     return redirect('/')
                 else:
@@ -124,7 +140,6 @@ class LoginRegisterClientView(FormView):
                 group, created = Group.objects.get_or_create(name='Cliente')
                 user.groups.add(group)
 
-
                 auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return redirect(self.success_url)
 
@@ -138,19 +153,19 @@ class LoginRegisterClientView(FormView):
             'register_form': register_form
         })
 
-
 # View Sem Permissão
 def sem_permissao(request):
     return render(request, 'sem_permissao.html')
 
-
-# View Dashboard Fornecedor (protegida)
+# View Dashboard Fornecedor (protegida) - você pode manter para personalizar depois
 @supplier_required
 def supplier_dashboard(request):
     return render(request, 'supplier/dashboard.html')
 
-
-# View Dashboard Cliente (protegida)
+# View Dashboard Cliente (protegida) - você pode manter para personalizar depois
 @client_required
 def client_dashboard(request):
     return render(request, '/')
+
+def order_progress(request):
+    return render(request, 'oscar/customer/order/order_progress_list.html')
