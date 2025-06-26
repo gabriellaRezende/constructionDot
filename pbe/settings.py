@@ -35,8 +35,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'profiles', 
-    'pedidos',
-    'catalogo',
+    'api',  
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -88,6 +87,21 @@ INSTALLED_APPS = [
     'rest_framework',
     'oscarapi',
 ]
+
+OSCAR_PAYMENT_METHODS = (
+    'oscar.apps.payment.methods.Free',  # Método de pagamento gratuito
+)
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
 
 SITE_ID = 1
 
@@ -201,3 +215,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/accounts/login/'  # URL padrão para onde o Django redireciona quando um login é necessário
 LOGIN_REDIRECT_URL = '/'        # URL para onde o Django redireciona após o login bem-sucedido
+
+OSCAR_CHECKOUT_FLOW = [
+    'checkout:shipping-address',
+    'checkout:shipping-method',
+    'checkout:preview',
+    'checkout:thank-you',
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
