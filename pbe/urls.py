@@ -4,6 +4,9 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
 from profiles.views import LoginRegisterClientView
+from django.conf.urls.static import static
+from django.conf import settings
+from pbe.views import CustomAddToBasketView
 
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
@@ -12,6 +15,8 @@ urlpatterns = [
     # Nonetheless, it's often useful for debugging.
 
     path('admin/', admin.site.urls),
+
+    path('basket/add/', CustomAddToBasketView.as_view(), name='basket:add'),
 
     path('accounts/login/', LoginRegisterClientView.as_view(), name='login'),  # Isto precisa estar antes do include do Oscar
 
@@ -26,4 +31,5 @@ urlpatterns = [
     path('', include('profiles.urls')),
 
     path('api/', include('api.urls')),
-]
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
